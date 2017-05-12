@@ -325,34 +325,6 @@ void validacao_mensagem(){
   indice_buffer_teclado = 0;
 }
 
-
-/* Começo da seção de códigos para lidar com a EEPROM modelo AT24C16N */
-
-/*Função que armazena o valor de medida na memória*/
-void eeprom_write(int indice, byte data){ 
-  Wire.beginTransmission(byte(0b1010000 + eeprom_adress)); // 80 desloca o endereço para que fique no formato realmente utilizado pela eeprom (1010A2A1A0)
-  Wire.write(indice);
-  Wire.write(data);
-  Wire.endTransmission();  
-}
-
-/*Função que lê e recebe o valor de medida na memória*/
-byte eeprom_read(int indice){
-  int data = 0;
-  //Temos aqui, a sequência de comandos necessários para a leitura
-  Wire.beginTransmission(byte(0b1010000 + eeprom_adress)); // 80 desloca o endereço para que fique no formato realmente utilizado pela eeprom (1010A2A1A0)
-  Wire.write(indice);
-  Wire.endTransmission();
-  delay(1);
-  Wire.requestFrom(int(0b101000 + eeprom_adress), 1);
-  delay(1);   
-  if(Wire.available()){ //Se disponível, lê o valor de medida e o imprime. 
-    data = Wire.read();
-  }
-  Serial.println(data); 
-  return data;
-}
-
 /*Função de interrupção, responsável pelo piscar do LED, bem como pela verificação
 da medição automática.*/
 void timer_interrupt_handler(){
