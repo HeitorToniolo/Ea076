@@ -18,11 +18,11 @@ atuador na seleção de objetos identificados por um sensor em
 uma esteira, onde remetemos a ideia de remover produtos com
 defeito de uma linha de produção, sendo que o defeito é 
 detecetado pelo sensor e o braço removeria o produto defeituoso.
- Essa ideia não a escolhida porque o projeto da esteira acabou por
+ Essa ideia não foi aplicada pois o projeto da esteira acabou por
 tomar muito tempo dos alunos e também alguns dos materiais necessários
-não foram encontrados a tempo para apresentação do projeto. Ao invés 
-disso optamos por um projeto mais simples, do ponto de vista de software,
-onde fizemos um guindaste controlado por 6 push buttons, onde cada par
+não foram encontrados a tempo da apresentação. Ao invés disso optamos 
+por um projeto mais simples, do ponto de vista de software, onde
+fizemos um guindaste controlado por 6 push buttons, onde cada par
 de botões controlavam um dos graus de liberdade do sistema. 
  Algumas ideias que poderiam ser implementadas para tornar o projeto mais
 sofisticado seriam, por exemplo, realizar um controle analógico dos graus 
@@ -31,22 +31,22 @@ utilizar o braço para deixar algo em uma certa posição pré determinada
 quando uma leitura de um sensor indicasse alguma uma situação que gostariamos
 de atuar. Um exemplo: um sensor de humidade indica que plantas precisam ser
 regadas, quando isso acontecer podemos deslocar o braço para a posição das 
-plantas, que já são conhecida a priori, utilizar o terceiro grau de liberdade
+plantas, que já são conhecidas a priori, utilizar o terceiro grau de liberdade
 para derrubarmos a água. Feito isso podemos retornar o braço a posição inicial,
 reabastecer a cesta com água e continuar o processo. Essa ideia parece atraente
 quando temos uma grande quantidade de plantas para regarmos e\ou consideramos
-expandir o jantar no futuro (já que adicionar uma nova planta irá requerer apenas
+expandir o jardim no futuro (já que adicionar uma nova planta irá requerer apenas
 um sensor de humidade e uma ligeira alteração no software).
  Por fim, citamos que os motores utilizados forneciam torque relativamente baixos,
 fato que restrigiu algumas possibilidades de estrutura, limitando o alcançe do 
-sistema (alcançe está diretamente relacionado com o braço e braço está diretamente
-relacionado com o torque) e fazendo com os alunos "otimizarem" a estrutura (claro 
+sistema (alcançe está diretamente relacionado com o braço que está diretamente
+relacionado com o torque) e fazendo com os alunos "otimizassem" a estrutura (claro 
 que nossa estrutura está longe de ser a melhor possível - se é que é possível 
 encontrar a estrutura ótima - mas foi necessário realizar diversos testes e ajustes
 às ideias iniciais para que o projeto se tornasse bom o suficiente). Outro problema
 foi que, mesmo os motores não fornecendo grande torque, a alimentação USB poderia não
 conseguir fornecer a corrente consumida pelos motores, por isso os alunos utilizaram
-uma fonte de tensão 12V - 1A, conectada a um regulador (colocar o tipo) que fornecia 5V
+uma fonte de tensão 12V - 1A, conectada a um regulador 7805 que fornecia 5V
 na saída e utilizamos essa saída como alimentação dos servos, curto circuitando as 
 referências do MCU (arduino) e do regulador (e da fonte externa).
 */
@@ -68,11 +68,11 @@ int mov_led = 12;
 int leitura;
 
 void setup() {
-  servo1.attach(9); // attaches the servo on pin 9 to the servo object 
+  servo1.attach(9); // Inicia os servos em pinos especificados
   servo2.attach(10);
   servo3.attach(11);
-  Serial.begin(9600); // open a serial connection to your computer
-  angle1 = 90;
+  Serial.begin(9600); // Inicia conexão serial com o computador
+  angle1 = 90;  //Angulos iniciais bem como inicialização dos servos nos mesmos
   angle2 = 90;
   angle3 = 165;
   servo1.write(angle1);
@@ -81,7 +81,7 @@ void setup() {
   delay(100);
   servo3.write(angle3);
   delay(100);
-  pinMode(push1, INPUT);
+  pinMode(push1, INPUT); //Define push buttons e led
   pinMode(push2, INPUT);
   pinMode(push3, INPUT);
   pinMode(push4, INPUT);
@@ -91,7 +91,7 @@ void setup() {
   pinMode(mov_led, OUTPUT);
   digitalWrite(mov_led, LOW); // led desliga já que é ativo alto
 }
-int varredura(){
+int varredura(){  //Função que verifica o push button pressionado e retorna um valor relacionado ao mesmo
   if(digitalRead(push1) == HIGH){
     return 1;
   }
@@ -117,11 +117,17 @@ int varredura(){
     return -1;
   }
 }
-void loop() {
+void loop() { 
   leitura = varredura();
-  if(leitura != -1){
+        
+  if(leitura != -1){ // Caso haja movimento, o LED fica aceso
     while(varredura() == leitura);
     digitalWrite(mov_led, HIGH);
+          
+          /*
+          Dependendo o push button apertado, o servo relacionado 
+          aciona conforme o movimento requerido.
+          */
     if(leitura == 1){
       if(angle1 <= 120 - hor_rate){
         angle1 += hor_rate;
@@ -142,6 +148,10 @@ void loop() {
         angle2 -= vert_rate;
       }
     }
+          /*
+          Os push buttons a seguir são da "caixa", e quando acionados, realizam
+          todo o movimento, não deixando o usuário realizar outras funções. 
+          */
     if(leitura == 5){
       if(angle3 == 165){
         for(;;){
@@ -168,7 +178,7 @@ void loop() {
         }
       }
     }
-    if(leitura == 7){
+    if(leitura == 7){ //Push button adicional que retorna o sistema em uma posição inicial
       angle1 = 90;
       angle2 = 90;
       angle3 = 165;
